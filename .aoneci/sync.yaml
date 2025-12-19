@@ -25,7 +25,7 @@ jobs:
 
       - uses: setup-env
         inputs:
-          java-version: '17'
+          java-version: '21'
 
       - id: setup-ssh
         run: |
