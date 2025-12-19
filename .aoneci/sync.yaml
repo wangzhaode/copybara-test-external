@@ -36,6 +36,7 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-
+          git config --global user.email "hi@zhaode.wang"
+          git config --global user.name "wangzhaode"
           chmod +x ./sync.sh
           ./sync.sh
