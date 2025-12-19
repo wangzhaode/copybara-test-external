@@ -14,7 +14,7 @@ strategy:
 
 jobs:
   sync-job:
-    image: google/copybara:latest
+    image: olivr/copybara:latest
 
     steps:
       - uses: checkout
