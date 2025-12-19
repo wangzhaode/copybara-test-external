@@ -6,10 +6,10 @@ params:
 
 triggers:
   merge_request:
+    target-branches:
+      - main
     types:
       - merged
-    branches:
-      - master
 
 strategy:
   fast-fail: false
@@ -29,22 +29,12 @@ jobs:
 
       - id: sync-to-github
         run: |
-          # 1. 安装基础工具
           apt-get update && apt-get install -y openssh-client git curl
-
-          # 2. 启动 ssh agent 并添加密钥
           eval $(ssh-agent -s)
           echo "${{secrets.GITHUB_SSH_KEY}}" | tr -d '\r' | ssh-add -
-
-          # 3. 配置 known_hosts
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-          # 4. 配置 Git 身份
-          git config --global user.email "hi@zhaode.wang"
-          git config --global user.name "wangzhaode"
-
-          # 5. 执行同步
           chmod +x ./sync.sh
           ./sync.sh
