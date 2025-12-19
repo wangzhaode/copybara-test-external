@@ -14,7 +14,7 @@ strategy:
 
 jobs:
   sync-job:
-    image: olivr/copybara:latest
+    image: alios-8u
 
     steps:
       - uses: checkout
@@ -44,4 +44,4 @@ jobs:
       # 3. 执行同步
       - id: run-sync
         run: |
-          copybara copy.bara.sky default --force
+          ./sync.sh
