@@ -5,7 +5,9 @@ params:
     default: true
 
 triggers:
-  push:
+  merge_request:
+    types:
+      - merged
     branches:
       - master
 
@@ -20,6 +22,10 @@ jobs:
       - uses: checkout
         inputs:
           fetch-depth: 0
+
+      - uses: setup-env
+        inputs:
+          java-version: '17'
 
       - id: setup-ssh
         run: |
