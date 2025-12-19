@@ -27,27 +27,24 @@ jobs:
         inputs:
           java-version: '21'
 
-      - id: setup-ssh
+      - id: sync-to-github
         run: |
-          # 2.1 安装基础工具 (官方镜像里可能缺 ssh)
-          apt-get update && apt-get install -y openssh-client git
+          # 1. 安装基础工具
+          apt-get update && apt-get install -y openssh-client git curl
 
-          # 2.2 启动 ssh agent
+          # 2. 启动 ssh agent 并添加密钥
           eval $(ssh-agent -s)
-
-          # 2.3 写入私钥 (从 CI 变量里读取)
           echo "${{secrets.GITHUB_SSH_KEY}}" | tr -d '\r' | ssh-add -
 
-          # 2.4 配置 known_hosts，防止第一次连接弹出 yes/no 询问
+          # 3. 配置 known_hosts
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-          # 2.5 配置 Git 身份
+          # 4. 配置 Git 身份
           git config --global user.email "hi@zhaode.wang"
           git config --global user.name "wangzhaode"
 
-      # 3. 执行同步
-      - id: run-sync
-        run: |
+          # 5. 执行同步
+          chmod +x ./sync.sh
           ./sync.sh
