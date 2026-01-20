@@ -63,7 +63,7 @@ jobs:
               echo "Changes detected (Hash changed from $BEFORE_HASH to $AFTER_HASH)."
               if [ -n "$(git diff --stat origin/master master)" ]; then
                   echo "Pushing changes to internal GitLab..."
-                  git remote set-url origin git@gitlab.alibaba-inc.com:AliNN/AliNNPrivate.git
+                  git remote set-url origin git@gitlab.alibaba-inc.com:zhaode.wzd/copybara-test-internal.git
                   ssh-keyscan gitlab.alibaba-inc.com >> ~/.ssh/known_hosts
                   git pull origin master --rebase
                   git push origin master
