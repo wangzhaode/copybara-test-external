@@ -10,9 +10,6 @@ triggers:
       - master
     types:
       - merged
-  push:
-    branches:
-      - master
 
 strategy:
   fast-fail: false
