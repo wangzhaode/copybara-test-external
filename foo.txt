@@ -1,1 +1,2 @@
 internal add 1.
+external add 1.
