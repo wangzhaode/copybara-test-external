@@ -1,0 +1,54 @@
+name: Sync to Github
+
+params:
+  incremental:
+    default: true
+
+triggers:
+  merge_request:
+    target-branches:
+      - master
+    types:
+      - merged
+  push:
+    branches:
+      - master
+
+strategy:
+  fast-fail: false
+
+jobs:
+  sync-job:
+    image: alios-8u
+
+    steps:
+      - uses: checkout
+        inputs:
+          fetch-depth: 0
+          ref: master
+
+      - uses: cache@1.0.0
+        inputs:
+          key: copybara-cache
+          path: /root/copybara
+          scope: pipeline
+          on-failure: retain
+          ignore-broken-symlink: true
+
+      - uses: setup-env
+        inputs:
+          java-version: '21'
+
+      - id: sync-to-github
+        run: |
+          git checkout -b master origin/master || git checkout master
+          yum install -y openssh-clients git curl
+          eval $(ssh-agent -s)
+          echo "${{secrets.GITHUB_SSH_KEY}}" | tr -d '\r' | ssh-add -
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          git config --global user.email "hi@zhaode.wang"
+          git config --global user.name "MNNSyncBot"
+          chmod +x ./release_scripts/copybara_sync.sh
+          ./release_scripts/copybara_sync.sh
