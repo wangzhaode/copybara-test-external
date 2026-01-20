@@ -50,7 +50,7 @@ jobs:
           BEFORE_HASH=$(git rev-parse HEAD)
           echo "Base Hash (master): $BEFORE_HASH"
 
-          git checkout -B sync_tmp_branch
+          git branch -D copybara_import_temp || true
           chmod +x ./release_scripts/copybara_sync.sh
           ./release_scripts/copybara_sync.sh --reverse
 
@@ -59,18 +59,18 @@ jobs:
           echo "Sync Hash (tmp): $AFTER_HASH"
 
           AFTER_HASH=$(git rev-parse HEAD)
-          if [ "$BEFORE_HASH" != "$AFTER_HASH" ]; then
-              echo "Changes detected (Hash changed from $BEFORE_HASH to $AFTER_HASH)."
-              if [ -n "$(git diff --stat origin/master master)" ]; then
-                  echo "Pushing changes to internal GitLab..."
+          if git show-ref --verify --quiet refs/heads/copybara_import_temp; then
+              echo "✅ Copybara fetched changes to temp branch. Attempting FF merge..."
+              if git merge --ff-only copybara_import_temp; then
+                  echo "Merge success. Pushing to internal..."
                   git remote set-url origin git@gitlab.alibaba-inc.com:zhaode.wzd/copybara-test-internal.git
                   ssh-keyscan gitlab.alibaba-inc.com >> ~/.ssh/known_hosts
                   git pull origin master --rebase
                   git push origin master
               else
-                  echo "False alarm: Hash changed but effectively no content diff (possibly empty commit). Skipping push."
+                  echo "❌ Error: Cannot fast-forward. History diverged!"
+                  exit 1
               fi
           else
-              echo "No changes synced. (Ignored commits strictly touching .github/ or apps/)"
+              echo "✅ No changes synced from GitHub."
           fi
-          git branch -D sync_tmp_branch
